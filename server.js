@@ -140,7 +140,7 @@ app.post('/', async (req, res) => {
         updateSharedFolder(req.session.folderName, req.session.shareId, req.body.retention);
         //dateFormat(currentDate, "dd/mm/yyyy")
         if ( appType === 'transfer' ) {
-          await sendEmail(senderEmail, req.body.email, '[EEA TRANFER] user "' + req.session.username + '" wants to send you some files via a shared folder', composedMessage);
+          await sendEmail(senderEmail, req.body.email, '[EEA TRANSFER] user "' + req.session.username + '" wants to send you some files via a shared folder', composedMessage);
         } else {
           await sendEmail(senderEmail, req.body.email, '[EEA TRANSLATION SERVICES] " new translation files to be audited via a shared folder', composedMessage);
         }
