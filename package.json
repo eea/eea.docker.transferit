@@ -1,0 +1,37 @@
+{
+  "name": "EEA transfer",
+  "version": "0.0.1",
+  "description": "EEA transfer - transfer files with confidence.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://https://github.com/eea/eea.docker.transferit.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "CC BY 4.0",
+  "bugs": {
+    "url": "https://github.com/eea/eea.docker.transferit/issues"
+  },
+  "homepage": "https://github.com/eea/eea.docker.transferit",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "connect-redis": "^5.0.0",
+    "dateformat": "^4.4.1",
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "ldapjs": "^2.2.3",
+    "log4js": "^6.3.0",
+    "nextcloud-node-client": "^1.8.1",
+    "nodemailer": "^6.4.17",
+    "path": "^0.12.7",
+    "redis": "^3.0.2",
+    "request": "^2.88.2",
+    "util": "^0.12.3",
+    "uuid": "^8.3.2"
+  }
+}

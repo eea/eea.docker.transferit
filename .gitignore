@@ -1,0 +1,6 @@
+.env
+node_modules/
+package-lock.json
+app.js
+upgradeRancherDev.sh
+docker-compose.yml

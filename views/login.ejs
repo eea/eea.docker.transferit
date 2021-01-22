@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('header'); -%>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-light bg-light static-top">
+    <div class="container">
+      <img src="/pdflogo-web.png" alt="European Environment Agency" id="printLogo" class="lazy" style="">
+    </div>
+  </nav>
+  <% if (error) { %>
+    <script>
+       swal({
+          title: "",
+          text: "<%= error %>",
+          type: "error",
+          showCancelButton: false,
+          confirmButtonClass: 'btn-primary',
+          confirmButtonText: 'Close'
+        });
+    </script>
+  <% } %>
+
+  <!-- Masthead -->
+  <header class="masthead text-white text-center pt-5">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-xl-9 mx-auto">
+          <h1 class="mb-3"><%= appHeading %></h1>
+	  <h4 class="mb-5"><%= appSubHeading %></h4>
+        </div>
+        <div class="col-md-4 col-lg-4 col-xl-4 mx-auto">
+          <form action="/" method="POST">
+            <div class="form-row">
+              <div class="col-12 col-md-12">
+		<input type="text"  class="form-control form-control-lg mb-1" placeholder="Eionet username" id="username" name="username">
+		<input type="password" class="form-control form-control-lg mb-2" placeholder="password" id="password" name="password">
+              </div>
+              <div class="col-12 col-md-12">
+                <button type="submit" class="btn btn-block btn-lg btn-primary" id="submit">Login</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <%- include('footer'); -%>
+
+</body>
+
+</html>

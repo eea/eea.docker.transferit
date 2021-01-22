@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('header'); -%>
+
+<body>
+
+  <nav class="navbar navbar-light bg-light static-top">
+    <div class="container">
+      <img src="/pdflogo-web.png" alt="European Environment Agency" id="printLogo" class="lazy" style="">
+    </div>
+  </nav>
+        <div class="col-md-4 col-lg-4 col-xl-4 mx-auto">
+            <div class="form-row">
+
+              <div class="sweet-alert showSweetAlert visible" tabindex="-1" data-custom-class="" data-has-cancel-button="true" data-has-confirm-button="true" data-allow-outside-click="false" data-has-done-function="true" data-animation="pop" data-timer="null" style="display: block; margin-top: -159px;">
+                <div class="sa-icon sa-error" style="display: none;">
+                  <span class="sa-x-mark">
+                    <span class="sa-line sa-left"></span>
+                    <span class="sa-line sa-right"></span>
+                  </span>
+                </div>
+                <div class="sa-icon sa-warning" style="display: none;">
+                  <span class="sa-body"></span>
+                  <span class="sa-dot"></span>
+                </div>
+                <div class="sa-icon sa-info" style="display: none;"></div>
+                <div class="sa-icon sa-error animate" style="display: block;">
+                  <span class="sa-line sa-tip animateSuccessTip"></span>
+                  <span class="sa-line sa-long animateSuccessLong"></span>
+
+                  <div class="sa-placeholder"></div>
+                  <div class="sa-fix"></div>
+                </div>
+                <div class="sa-icon sa-custom" style="display: none;"></div>
+		<h2><%= error %></h2>
+                <p class="lead text-muted " style="display: block;">Please report it to the IT department</p>
+                <div class="form-group">
+                  <input type="text" class="form-control" tabindex="3" placeholder="">
+                  <span class="sa-input-error help-block">
+                    <span class="glyphicon glyphicon-exclamation-sign"></span> 
+                    <span class="sa-help-text">Not valid</span>
+                  </span>
+                </div>
+                <!--
+		<div class="sa-button-container">
+                  <form action="/logout" method="GET">
+                    <button class="cancel btn btn-lg btn-secondary" tabindex="2" style="display: inline-block;">Logout</button>
+                  </form>
+
+                  <div class="sa-confirm-button-container">
+                    <form action="/" method="POST">
+                      <button class="confirm btn btn-lg btn-primary" tabindex="1" style="display: inline-block;" name="submitButton" value="startOver">Give another try?</button>
+                    </form>
+                   </div>
+                       <div class="la-ball-fall"></div>                 
+                </div>
+		-->
+              </div>
+
+            </div>
+          
+        </div>
+
+
+</body>
+
+</html>

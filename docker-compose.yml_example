@@ -1,0 +1,32 @@
+
+version: "2"
+services:
+  app:
+    image: eeacms/eea-transferit
+    environment:
+      NEXTCLOUD_USERNAME: 'admin'
+      NEXTCLOUD_PASSWORD: 'changeme'
+      NEXTCLOUD_URL: 'http://localhost:8001'
+
+      REDISHOST: 'redis'
+      REDISPORT: 6379
+      REDISSECRET: 'sshhhhh'
+      LDAPHOST: 'ldapchangeme'
+      LDAPDN: 'changeme'
+      PORT: 7000
+      SENDEREMAIL: 'changeme@eea.europa.eu'
+
+      APPTYPE: 'transfer'
+      APPHEADING: 'changme'
+      APPSUBHEADING: 'changeme'
+    ports:
+    - 7000:7000
+    depends_on:
+      - redis
+    labels:
+      io.rancher.scheduler.affinity:host_label: backend=true
+
+  redis:
+    image: redis:5-alpine3.10
+    labels:
+      io.rancher.scheduler.affinity:host_label: backend=true
