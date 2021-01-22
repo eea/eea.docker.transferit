@@ -116,6 +116,8 @@ app.post('/', async (req, res) => {
     await autenticationDN ( req.body.username, req.body.password, function(result) {
       if (result === 200) {
         req.session.username = req.body.username;
+	//no need to store the password
+	req.body.password = '';
       } else {
         req.session.error = result;
       }
