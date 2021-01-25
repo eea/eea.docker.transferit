@@ -135,9 +135,9 @@ app.post('/', async (req, res) => {
       //logger.info ('retention: ' + req.body.retention);
       const currentDate = new Date();
       currentDate.setDate(currentDate.getDate() + parseInt(req.body.retention));
-      var composedMessage = await composeMessage(req.session.username, req.body.message, req.session.folderName, dateFormat(currentDate, "dd/mm/yyyy")); 
+      var composedMessage = await composeMessage(req.session.username, req.body.message, req.session.folderName, dateFormat(currentDate, "dd/mm/yyyy"), req.body.password); 
       try {
-        updateSharedFolder(req.session.folderName, req.session.shareId, req.body.retention);
+        updateSharedFolder(req.session.folderName, req.session.shareId, req.body.retention, req.body.password);
         //dateFormat(currentDate, "dd/mm/yyyy")
         if ( appType === 'transfer' ) {
           await sendEmail(senderEmail, req.body.email, '[EEA TRANSFER] user "' + req.session.username + '" wants to send you some files via a shared folder', composedMessage);
@@ -167,13 +167,21 @@ app.get('/logout', (req,res) => {
   });
 });
 
-async function composeMessage (username, originalMessage, folderName, expiryDate) {
-  if (originalMessage != "") { originalMessage = '\n\ralong with the following message : \n\r"' + originalMessage + '"'};
+async function composeMessage (username, originalMessage, folderName, expiryDate, password) {
+//  if (originalMessage != "") { originalMessage = '\n\ralong with the following message : \n\r"' + originalMessage + '"'};
+
+
   if ( appType === 'transfer' ) {
-    message = 'eionet user "' + username + '" wants to send you some files via a shared folder: \n\r' + folderName + originalMessage + '\n\r\n\rThe folder will be accessible until ' + expiryDate;
+    message = 'eionet user "' + username + '" wants to send you some files via a shared folder: \n\r' + folderName;
   } else {
-    message = 'eionet user "' + username + '" wants to send you some files via a shared folder: \n\r' + folderName + originalMessage + '\n\r\n\rThe folder will be accessible until ' + expiryDate;
+    message = 'eionet user "' + username + '" wants to send you some files via a shared folder: \n\r' + folderName;
   }
+
+  if (originalMessage != "") {message + '\n\ralong with the following message : \n\r"' + originalMessage + '"'};
+
+  if (password != "") { message = message + '\n\ruse the following password: "' + password + '"'};
+
+  message = message + '\n\r\n\rThe folder will be accessible until ' + expiryDate;
 
   return message;
 }
@@ -239,7 +247,7 @@ async function createSharedFolder () {
 
 //once the email is sent, the shared folder is set as readonly 
 //and the retention tag is assigned upon the user's choice
-async function updateSharedFolder ( folder, shareId, retention ) {
+async function updateSharedFolder ( folder, shareId, retention, password ) {
   
   try {
     const ncClient = new nextcloud();
@@ -249,6 +257,17 @@ async function updateSharedFolder ( folder, shareId, retention ) {
     } else {
       ncClient.updateShare(shareHandler.ocs.data[0].id, { hide_download: 1 });
     }
+
+    if (password) {
+      ncClient.updateShare(shareHandler.ocs.data[0].id, { password: password });
+    }
+
+
+    //if (password) {
+    //  console.log('password set: ' + password);
+    //} else {
+    //  console.log('password not set');
+    //}
 
     //ncClient.updateShare(shareHandler.ocs.data[0].id, { expireDate: retention.toISOString().split("T")[0] });
     //ncClient.updateShare(shareHandler.ocs.data[0].id, { expireDate: retention });
