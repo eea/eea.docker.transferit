@@ -1,6 +1,6 @@
 {
   "name": "EEA-transferIT",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "EEA TransferIT - transfer files with confidence",
   "main": "server.js",
   "scripts": {

@@ -49,10 +49,10 @@ redisClient.on('connect',()=>{
 
 const app = express();
 
-app.use((req, res, next) => {
-  res.header("Vary", "X-Requested-With");
-  next();
-});
+//app.use((req, res, next) => {
+//  res.header("Vary", "X-Requested-With");
+//  next();
+//});
 
 app.use(session({
     secret: redisSecret,
@@ -68,8 +68,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.use(express.static('./public'));
-app.disable('view cache');
-
+//app.disable('view cache');
 
 app.get('/', async (req, res) => {
   //check if nextcloud is working as expected
@@ -179,7 +178,7 @@ async function composeMessage (username, originalMessage, folderName, expiryDate
 
   if (originalMessage != "") {message + '\n\ralong with the following message : \n\r"' + originalMessage + '"'};
 
-  if (password != "") { message = message + '\n\ruse the following password: "' + password + '"'};
+  if (password && password != '') { message = message + '\n\ruse the following password: "' + password + '"'};
 
   message = message + '\n\r\n\rThe folder will be accessible until ' + expiryDate;
 
@@ -258,16 +257,9 @@ async function updateSharedFolder ( folder, shareId, retention, password ) {
       ncClient.updateShare(shareHandler.ocs.data[0].id, { hide_download: 1 });
     }
 
-    if (password) {
+    if (password && password != '') {
       ncClient.updateShare(shareHandler.ocs.data[0].id, { password: password });
     }
-
-
-    //if (password) {
-    //  console.log('password set: ' + password);
-    //} else {
-    //  console.log('password not set');
-    //}
 
     //ncClient.updateShare(shareHandler.ocs.data[0].id, { expireDate: retention.toISOString().split("T")[0] });
     //ncClient.updateShare(shareHandler.ocs.data[0].id, { expireDate: retention });
