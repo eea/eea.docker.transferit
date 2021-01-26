@@ -149,7 +149,7 @@ app.post('/', async (req, res) => {
         res.render('sent', {appHeading : appHeading, appSubHeading : appSubHeading, error: ''});
       } catch(error) {
         logger.error('sendEmail: ' + error);
-        res.render('failure', {appHeading : appHeading, appSubHeading : appSubHeading, error: "Something is quite not right with sending emails"});
+        res.render('failure', {appHeading : appHeading, appSubHeading : appSubHeading, error: error});
         return;
       }
     }
