@@ -141,10 +141,8 @@ app.post('/', async (req, res) => {
         //dateFormat(currentDate, "dd/mm/yyyy")
 
         var emails = req.body.email.split(",");
-        console.log(emails);
         emails = removeArrayDubplicates(emails);
 
-        console.log(emails);
         const sendAllEmails = async () => {
           for (let emailIndex = 0; emailIndex <= emails.length-1; emailIndex++) {
             if ( appType === 'transfer' ) {
