@@ -1,6 +1,6 @@
 {
   "name": "EEA-transferIT",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "EEA TransferIT - transfer files with confidence",
   "main": "server.js",
   "scripts": {
@@ -30,6 +30,7 @@
     "log4js": "^6.3.0",
     "nextcloud-node-client": "^1.8.1",
     "nodemailer": "^6.4.17",
+    "p-iteration": "^1.1.8",
     "path": "^0.12.7",
     "redis": "^3.0.2",
     "request": "^2.88.2",

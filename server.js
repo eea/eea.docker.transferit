@@ -21,6 +21,7 @@ const util = require('util');
 var log4js = require("log4js");
 var logger = log4js.getLogger();
 logger.level = "debug";
+const { forEach } = require('p-iteration');
 
 let appType = process.env.APPTYPE || 'transfer';
 
@@ -138,12 +139,23 @@ app.post('/', async (req, res) => {
       try {
         updateSharedFolder(req.session.folderName, req.session.shareId, req.body.retention, req.body.password);
         //dateFormat(currentDate, "dd/mm/yyyy")
-        if ( appType === 'transfer' ) {
-          await sendEmail(senderEmail, req.body.email, '[EEA TRANSFER] user "' + req.session.username + '" wants to send you some files via a shared folder', composedMessage);
-        } else {
-          await sendEmail(senderEmail, req.body.email, '[EEA TRANSLATION SERVICES] " new translation files to be audited via a shared folder', composedMessage);
-        }
-        
+
+        var emails = req.body.email.split(",");
+        console.log(emails);
+        emails = removeArrayDubplicates(emails);
+
+        console.log(emails);
+        const sendAllEmails = async () => {
+          for (let emailIndex = 0; emailIndex <= emails.length-1; emailIndex++) {
+            if ( appType === 'transfer' ) {
+              await sendEmail(senderEmail, emails[emailIndex], '[EEA TRANSFER] user "' + req.session.username + '" wants to send you some files via a shared folder', composedMessage);
+            } else {
+              await sendEmail(senderEmail, emails[emailIndex], '[EEA TRANSLATION SERVICES] " new translation files to be audited via a shared folder', composedMessage);
+            }
+          }
+        };
+
+        await sendAllEmails()
         //to avoid people to use the back button of the browser and reuse the same req.session.folderName
         req.session.sent = 1;
         res.render('sent', {appHeading : appHeading, appSubHeading : appSubHeading, error: ''});
@@ -156,6 +168,17 @@ app.post('/', async (req, res) => {
     
   }
 });
+
+function removeArrayDubplicates(array) {
+  return array.filter(function (item, index) {
+    return array.indexOf(item) === index;
+  });
+};
+
+async function wait(ms) {
+    setTimeout(ms);
+    return 1;
+}
 
 app.get('/logout', (req,res) => {
   req.session.destroy((err) => {

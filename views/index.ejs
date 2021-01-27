@@ -1,9 +1,11 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
    <%- include('header'); -%>
    <body>
+
       <!-- Navigation -->
       <nav class="navbar navbar-light bg-light static-top">
          <div class="container-fluid">
@@ -23,14 +25,17 @@
                   <h1 class="mb-2"><%= appHeading %></h1>
                   <h4 class="mb-4"><%= appSubHeading %></h4>
                </div>
+
                <div class="col-md-12 col-lg-12 col-xl-7 mx-auto">
                   <form method="POST" action="/">
                      <div class="form-row">
-                        <div class="col-12 col-md-12 mb-2 mb-md-2">
-                           <input type="email" class="form-control form-control-lg" placeholder="Recipient email" name="email" value="" />
-                           <textarea class="form-control form-control-lg mt-2 exampleFormControlTextarea1" rows="8" placeholder="Insert your message in here .." name="message" value="du du du da da da"></textarea>
+                        
+                      <div class="col-12 col-md-12 mb-2 mb-md-2">
 
-                           
+                           <div id="emails-input" ></div>
+
+                           <input class="d-none form-control form-control-lg" placeholder="Recipient email" id="email" name="email" value="" />
+                           <textarea class="form-control form-control-lg mt-2 exampleFormControlTextarea1" rows="8" placeholder="Insert your message in here .." name="message" value="du du du da da da"></textarea>
 
 
                            <div class="embed-responsive embed-responsive-16by9">
@@ -40,7 +45,11 @@
                         <!--<div class="btn btn-block btn-lg btn-primary mb-0" data-toggle="buttons">-->
                         <!--<div class="col-md-12 mb-0 mb-md-0">
                            <div class="container-fluid">-->
-                        
+
+                           <script src="vendor/multiple-emails/js/lib/utils.js"></script>
+                           <script src="vendor/multiple-emails/js/lib/emails-input.js"></script>
+                           <script src="vendor/multiple-emails/js/app.js"></script>
+
                         <label class="col-md-3 btn btn-primary"> 
                         Retention time days
                         </label>
@@ -59,7 +68,7 @@
                               Password
                             </label>
                             <script language="JavaScript">
-                              
+
                                 function disableEnablePassword() {
                                   if (document.getElementById("password").disabled === true) {
                                     document.getElementById("password").disabled = false;
@@ -94,7 +103,7 @@
                            <button type="submit" class="btn btn-block btn-lg btn-secondary" name="submitButton" value="startOver">Start over</button>
                         </div>
                         <div class="col-md-6">
-                           <button type="submit" class="btn btn-block btn-lg btn-primary" name="submitButton" value="send">Send</button>
+                           <button type="submit" class="btn btn-block btn-lg btn-primary" name="submitButton" value="send" data-action='get-emails-count' >Send</button>
                         </div>
                      </div>
                   </form>
@@ -105,4 +114,5 @@
       <%- include('footer'); -%>
    </body>
 </html>
+
 
