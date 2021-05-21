@@ -136,6 +136,7 @@ app.post('/', async (req, res) => {
       const currentDate = new Date();
       currentDate.setDate(currentDate.getDate() + parseInt(req.body.retention));
       var composedMessage = await composeMessage(req.session.username, req.body.message, req.session.folderName, dateFormat(currentDate, "dd/mm/yyyy"), req.body.password); 
+      console.log("composedMessage: " + composedMessage);
       try {
         updateSharedFolder(req.session.folderName, req.session.shareId, req.body.retention, req.body.password);
         //dateFormat(currentDate, "dd/mm/yyyy")
@@ -190,16 +191,11 @@ app.get('/logout', (req,res) => {
 async function composeMessage (username, originalMessage, folderName, expiryDate, password) {
 //  if (originalMessage != "") { originalMessage = '\n\ralong with the following message : \n\r"' + originalMessage + '"'};
 
+  message = 'Eionet user "' + username + '" wants to send you some files via a shared folder: ' + folderName;
 
-  if ( appType === 'transfer' ) {
-    message = 'eionet user "' + username + '" wants to send you some files via a shared folder: \n\r' + folderName;
-  } else {
-    message = 'eionet user "' + username + '" wants to send you some files via a shared folder: \n\r' + folderName;
-  }
+  if (originalMessage && originalMessage != '') {message = message + '\n\rWith the following message : \n\r"' + originalMessage + '"'};
 
-  if (originalMessage != "") {message + '\n\ralong with the following message : \n\r"' + originalMessage + '"'};
-
-  if (password && password != '') { message = message + '\n\ruse the following password: "' + password + '"'};
+  if (password && password != '') { message = message + '\n\rPlease, use the following password: "' + password + '"'};
 
   message = message + '\n\r\n\rThe folder will be accessible until ' + expiryDate;
 
