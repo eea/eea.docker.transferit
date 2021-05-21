@@ -191,13 +191,12 @@ app.get('/logout', (req,res) => {
 async function composeMessage (username, originalMessage, folderName, expiryDate, password) {
 //  if (originalMessage != "") { originalMessage = '\n\ralong with the following message : \n\r"' + originalMessage + '"'};
 
-  message = 'Eionet user "' + username + '" wants to send you some files via a shared folder: ' + folderName;
-
+  message = 'Eionet user "' + username + '" wants to send you some files via a shared folder: \n\r' + folderName;
+  if (password && password != '') { message = message + '  (the share is password protected; use: "' + password + '" to access it)'};
+	 
   if (originalMessage && originalMessage != '') {message = message + '\n\rWith the following message : \n\r"' + originalMessage + '"'};
 
-  if (password && password != '') { message = message + '\n\rPlease, use the following password: "' + password + '"'};
-
-  message = message + '\n\r\n\rThe folder will be accessible until ' + expiryDate;
+  message = message + '\n\rThe folder will be accessible until ' + expiryDate;
 
   return message;
 }
