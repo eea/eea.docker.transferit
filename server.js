@@ -25,7 +25,7 @@ const { forEach } = require('p-iteration');
 
 let appType = process.env.APPTYPE || 'transfer';
 
-let redisHost = process.env.REDISHOST || 'redis';
+let redisHost = process.env.REDISHOST || 'localhost';
 let redisPort = process.env.REDISPORT || 6379;
 let redisSecret = process.env.REDISSECRET || 'changeme';
 
@@ -256,7 +256,7 @@ async function createSharedFolder () {
     const fileHandler = await ncClient.getFolder("/" + folder);
     //updating the folder name upone the share name
     await fileHandler.move("/" + shareName);
-    //await fileHandler.addTag("retention10days");
+    await fileHandler.addTag("retention10days");
   } catch (e) {
     logger.error('createSharedFolder: ' + e);
     alert('Connection with nc server failed: ' + e);
@@ -287,6 +287,7 @@ async function updateSharedFolder ( folder, shareId, retention, password ) {
     //const fileHandler = await ncClient.getFolder("/" + folder);
     folder = folder.substring(folder.lastIndexOf("/")+1);//'Qipnr7rDqxgroKG';
     const folderHandler = await ncClient.getFolder("/" + folder);
+    await folderHandler.removeTag("retention10days"); 
     folderHandler.addTag('retention' + retention + 'days');
   } catch (e) {
     logger.error('updateSharedFolder: ' + e);
