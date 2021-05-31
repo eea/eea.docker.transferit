@@ -57,7 +57,7 @@ const app = express();
 
 app.use(session({
     secret: redisSecret,
-    store: new redisStore({ host: redisHost, port: redisPort, client: redisClient, ttl : 3500 }),
+    store: new redisStore({ host: redisHost, port: redisPort, client: redisClient, ttl : 7200 }),
     saveUninitialized: false,
     resave: false
 }));
