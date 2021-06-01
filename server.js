@@ -28,6 +28,7 @@ let appType = process.env.APPTYPE || 'transfer';
 let redisHost = process.env.REDISHOST || 'localhost';
 let redisPort = process.env.REDISPORT || 6379;
 let redisSecret = process.env.REDISSECRET || 'changeme';
+let redidTtl = process.env.REDISTTL || 14400;
 
 let appHeading = process.env.APPHEADING || 'changeme';
 let appSubHeading = process.env.APPSUBHEADING || 'changeme';
@@ -57,7 +58,7 @@ const app = express();
 
 app.use(session({
     secret: redisSecret,
-    store: new redisStore({ host: redisHost, port: redisPort, client: redisClient, ttl : 14400 }),
+    store: new redisStore({ host: redisHost, port: redisPort, client: redisClient, ttl : redidTtl }),
     saveUninitialized: false,
     resave: false
 }));
