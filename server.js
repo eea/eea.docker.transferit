@@ -137,7 +137,8 @@ app.post('/', async (req, res) => {
       const currentDate = new Date();
       currentDate.setDate(currentDate.getDate() + parseInt(req.body.retention));
       var composedMessage = await composeMessage(req.session.username, req.body.message, req.session.folderName, dateFormat(currentDate, "dd/mm/yyyy"), req.body.password); 
-      console.log("composedMessage: " + composedMessage);
+      logger.info ('about to send with user: ' + req.session.username + ' retention: ' + req.body.retention)
+      #console.log("composedMessage: " + composedMessage);
       try {
         updateSharedFolder(req.session.folderName, req.session.shareId, req.body.retention, req.body.password);
         //dateFormat(currentDate, "dd/mm/yyyy")
