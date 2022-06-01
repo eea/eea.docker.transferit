@@ -11,14 +11,20 @@ services:
       REDISHOST: 'redis'
       REDISPORT: 6379
       REDISSECRET: 'sshhhhh'
-      LDAPHOST: 'ldapchangeme'
-      LDAPDN: 'changeme'
+
       PORT: 7000
+
       SENDEREMAIL: 'changeme@eea.europa.eu'
 
-      APPTYPE: 'transfer'
-      APPHEADING: 'changme'
-      APPSUBHEADING: 'changeme'
+      #idp settings
+      BASE_URL = 'http://localhost:7000'
+      CLIENT_ID = 'client_id'
+      SECRET = 'client_secret'
+      ISSUER_BASE_URL = 'https://mykeycloakinstance'
+
+      #APPTYPE: 'transfer'
+      #APPHEADING: 'changme'
+      #APPSUBHEADING: 'changeme'
     ports:
     - 7000:7000
     depends_on:
