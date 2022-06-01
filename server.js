@@ -1,5 +1,5 @@
 /*
- * EEA transfer
+ * EEA transferIT
  * Author: Mauro Michielon
 */
 const express = require('express');
@@ -7,38 +7,40 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const redis = require('redis');
 const redisStore = require('connect-redis')(session);
-const ldapjs = require('ldapjs');
+const { auth, requiresAuth } = require('express-openid-connect');
+
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const nextcloud = require('nextcloud-node-client').Client;
 const nodemailer = require('nodemailer');
-//const date = require('date-and-time');
 require('dotenv').config();
 const alert = require('alert');
 const dateFormat = require('dateformat');
 const request = require('request');
 const util = require('util');
+const { forEach } = require('p-iteration');
+
 var log4js = require("log4js");
 var logger = log4js.getLogger();
 logger.level = "debug";
-const { forEach } = require('p-iteration');
 
-let appType = process.env.APPTYPE || 'transfer';
 
 let redisHost = process.env.REDISHOST || 'localhost';
 let redisPort = process.env.REDISPORT || 6379;
 let redisSecret = process.env.REDISSECRET || 'changeme';
 let redisTtl = process.env.REDISTTL || 14400;
 
-let appHeading = process.env.APPHEADING || 'changeme';
-let appSubHeading = process.env.APPSUBHEADING || 'changeme';
-let appTitle = process.env.APPTITLE || 'changeme';
+let appHeading = process.env.APPHEADING || 'EEA TransferIT';
+let appSubHeading = process.env.APPSUBHEADING || 'Transfer your files with confidence';
+let appTitle = process.env.APPTITLE || 'EEA';
 
 let postfixHost = process.env.POSTFIXHOST || 'changeme';
 let senderEmail = process.env.SENDEREMAIL || 'changeme@changeme.org';
 
-let ldaphost = process.env.LDAPHOST || 'changeme';
-let ldapdn = process.env.LDAPDN || 'changeme';
+process.env.SECRET = 'vD8uJmwl6nkyxSi736SOuJswsm3kbwWH'
+process.env.BASE_URL = 'http://localhost:7000'
+process.env.CLIENT_ID = 'transferit-localhost'
+process.env.ISSUER_BASE_URL = 'https://staging-login.eea.europa.eu/realms/login-eea'
 
 const redisClient = redis.createClient({ host: redisHost, port: redisPort });
 redisClient.on('error', err => {
@@ -51,26 +53,28 @@ redisClient.on('connect',()=>{
 
 const app = express();
 
-//app.use((req, res, next) => {
-//  res.header("Vary", "X-Requested-With");
-//  next();
-//});
-
-app.use(session({
+app.use(
+  auth({
+    idpLogout: true,
+    authRequired: false,
+    session: {
+      store: new redisStore({ client: redisClient }),
+    },
+  }),
+  session({
     secret: redisSecret,
     store: new redisStore({ host: redisHost, port: redisPort, client: redisClient, ttl : redisTtl }),
     saveUninitialized: false,
     resave: false
-}));
+  })
+);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
 app.use(express.static('./public'));
-//app.disable('view cache');
 
 app.get('/', async (req, res) => {
   //check if nextcloud is working as expected
@@ -83,14 +87,15 @@ app.get('/', async (req, res) => {
     return;
   }
  
-  //is req.session.username is defined, user is logged in
-  if (req.session.username) {
-    username = req.session.username;
+  //is req.oidc.user is defined, user is logged in
+  if (req.oidc.user) {
+    username = req.oidc.user.email;
+    //console.log (req.oidc.user);
     if (!req.session.folderName) {
       var createSharedFolderResponse = await createSharedFolder ();
       req.session.folderName = process.env.NEXTCLOUD_URL + '/s/' + createSharedFolderResponse[0];
       req.session.shareId = createSharedFolderResponse[1];
-    }   
+    }  
     
     //if req.session.sent === 1, it means that back button has been presssed after having successfully sent the email
     if (req.session.sent === 1) {
@@ -110,22 +115,8 @@ app.get('/', async (req, res) => {
   }
 });
 
-app.post('/', async (req, res) => {
+app.post('/', requiresAuth(), async (req, res) => {
   req.session.sent = 0;
-  //if username is not set,  try to authenticate and redirect to GET /
-  if (!req.session.username) {
-    await autenticationDN ( req.body.username, req.body.password, function(result) {
-      if (result === 200) {
-        req.session.username = req.body.username;
-	//no need to store the password
-	req.body.password = '';
-      } else {
-        req.session.error = result;
-      }
-      res.redirect('/');
-    });
-  } else {
-
     //is start over is clicked, reload and force the regeneraion of the share
     if (req.body.submitButton === 'startOver') {
       req.session.folderName = ''; 
@@ -138,21 +129,15 @@ app.post('/', async (req, res) => {
       currentDate.setDate(currentDate.getDate() + parseInt(req.body.retention));
       var composedMessage = await composeMessage(req.session.username, req.body.message, req.session.folderName, dateFormat(currentDate, "dd/mm/yyyy"), req.body.password); 
       logger.info ('about to send with user: ' + req.session.username + ' retention: ' + req.body.retention)
-      //console.log("composedMessage: " + composedMessage);
+
       try {
         updateSharedFolder(req.session.folderName, req.session.shareId, req.body.retention, req.body.password);
-        //dateFormat(currentDate, "dd/mm/yyyy")
-
         var emails = req.body.email.split(",");
-        emails = removeArrayDubplicates(emails);
+        emails = removeArrayDuplicates(emails);
 
         const sendAllEmails = async () => {
           for (let emailIndex = 0; emailIndex <= emails.length-1; emailIndex++) {
-            if ( appType === 'transfer' ) {
-              await sendEmail(senderEmail, emails[emailIndex], '[EEA TRANSFER] user "' + req.session.username + '" wants to send you some files via a shared folder', composedMessage);
-            } else {
-              await sendEmail(senderEmail, emails[emailIndex], '[EEA TRANSLATION SERVICES] " new translation files to be audited via a shared folder', composedMessage);
-            }
+            await sendEmail(senderEmail, emails[emailIndex], '[EEA TRANSFER] user "' + req.session.username + '" wants to send you some files via a shared folder', composedMessage);
           }
         };
 
@@ -166,11 +151,9 @@ app.post('/', async (req, res) => {
         return;
       }
     }
-    
-  }
 });
 
-function removeArrayDubplicates(array) {
+function removeArrayDuplicates(array) {
   return array.filter(function (item, index) {
     return array.indexOf(item) === index;
   });
@@ -191,7 +174,7 @@ app.get('/logout', (req,res) => {
 });
 
 async function composeMessage (username, originalMessage, folderName, expiryDate, password) {
-//  if (originalMessage != "") { originalMessage = '\n\ralong with the following message : \n\r"' + originalMessage + '"'};
+  //if (originalMessage != "") { originalMessage = '\n\ralong with the following message : \n\r"' + originalMessage + '"'};
 
   message = 'Eionet user "' + username + '" wants to send you some files via a shared folder: \n\r' + folderName;
   if (password && password != '') { message = message + '  (the share is password protected; use: "' + password + '" to access it)'};
@@ -224,21 +207,15 @@ async function sendEmail (from, to, subject, text) {
   return info.messageId;
 }
 
-async function autenticationDN ( username, password, callback ) {
-   let ldapClient = ldapjs.createClient ({ url: 'ldaps://' + ldaphost });
-   ldapClient.bind('uid=' + username + ',' + ldapdn, password, function (err) {
-     if (err) {
-	 //logger.error('LDAP bind error code: ' + err.code + ' - ' + err);
-	 callback (err) 
-     } else {
-         callback (200)
-     };
-   });
-}
-
 //create folder in nextcloud, share it, rename the folder upon the share name
+
 //server credentials are taken via env variables:
 //NEXTCLOUD_USERNAME, NEXTCLOUD_PASSWORD, NEXTCLOUD_URL
+//for testing: docker run --name nextcloud -e NEXTCLOUD_ADMIN_USER=admin -e NEXTCLOUD_ADMIN_PASSWORD=changeme -d -p 8085:80 nextcloud:latest
+//export NEXTCLOUD_URL=http://localhost:8085
+//export NEXTCLOUD_USERNAME=admin
+//export NEXTCLOUD_PASSWORD=changeme
+
 async function createSharedFolder () {
   var folder = uuidv4();
   var shareName;
@@ -269,19 +246,12 @@ async function updateSharedFolder ( folder, shareId, retention, password ) {
   try {
     const ncClient = new nextcloud();
     const shareHandler = await ncClient.getShare(shareId);
-    if (appType === 'transfer') {
-      ncClient.updateShare(shareHandler.ocs.data[0].id, { permissions: 17 });
-    } else {
-      ncClient.updateShare(shareHandler.ocs.data[0].id, { hide_download: 1 });
-    }
+    ncClient.updateShare(shareHandler.ocs.data[0].id, { permissions: 17 });
 
     if (password && password != '') {
       ncClient.updateShare(shareHandler.ocs.data[0].id, { password: password });
     }
 
-    //ncClient.updateShare(shareHandler.ocs.data[0].id, { expireDate: retention.toISOString().split("T")[0] });
-    //ncClient.updateShare(shareHandler.ocs.data[0].id, { expireDate: retention });
-    //const fileHandler = await ncClient.getFolder("/" + folder);
     folder = folder.substring(folder.lastIndexOf("/")+1);//'Qipnr7rDqxgroKG';
     const folderHandler = await ncClient.getFolder("/" + folder);
     await folderHandler.removeTag("retention10days"); 
