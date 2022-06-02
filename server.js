@@ -37,11 +37,6 @@ let appTitle = process.env.APPTITLE || 'EEA';
 let postfixHost = process.env.POSTFIXHOST || 'changeme';
 let senderEmail = process.env.SENDEREMAIL || 'changeme@changeme.org';
 
-process.env.SECRET = 'Nl6eTqUg1prDwzLlHE7EK7DD7X66Oe58'
-process.env.BASE_URL = 'http://localhost:7000'
-process.env.CLIENT_ID = 'transferit-localhost'
-process.env.ISSUER_BASE_URL = 'https://staging-login.eea.europa.eu/realms/login-eea'
-
 const redisClient = redis.createClient({ host: redisHost, port: redisPort });
 redisClient.on('error', err => {
     logger.error('Error ' + err);
