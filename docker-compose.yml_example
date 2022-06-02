@@ -20,7 +20,7 @@ services:
       BASE_URL = 'http://localhost:7000'
       CLIENT_ID = 'client_id'
       SECRET = 'client_secret'
-      ISSUER_BASE_URL = 'https://mykeycloakinstance'
+      ISSUER_BASE_URL = 'https://mykeycloakinstance/untilrealm'
 
       #APPTYPE: 'transfer'
       #APPHEADING: 'changme'

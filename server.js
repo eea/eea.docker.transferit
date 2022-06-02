@@ -37,7 +37,7 @@ let appTitle = process.env.APPTITLE || 'EEA';
 let postfixHost = process.env.POSTFIXHOST || 'changeme';
 let senderEmail = process.env.SENDEREMAIL || 'changeme@changeme.org';
 
-process.env.SECRET = 'vD8uJmwl6nkyxSi736SOuJswsm3kbwWH'
+process.env.SECRET = 'Nl6eTqUg1prDwzLlHE7EK7DD7X66Oe58'
 process.env.BASE_URL = 'http://localhost:7000'
 process.env.CLIENT_ID = 'transferit-localhost'
 process.env.ISSUER_BASE_URL = 'https://staging-login.eea.europa.eu/realms/login-eea'
@@ -89,7 +89,8 @@ app.get('/', async (req, res) => {
  
   //is req.oidc.user is defined, user is logged in
   if (req.oidc.user) {
-    username = req.oidc.user.email;
+    req.session.name = req.oidc.user.name;
+    req.session.username = req.oidc.user.email;
     //console.log (req.oidc.user);
     if (!req.session.folderName) {
       var createSharedFolderResponse = await createSharedFolder ();
@@ -101,7 +102,7 @@ app.get('/', async (req, res) => {
     if (req.session.sent === 1) {
       res.render('sent', {appHeading : appHeading, appSubHeading : appSubHeading, error: ''});
     } else {
-      res.render('index', { appHeading : appHeading, appSubHeading : appSubHeading, username: username, folderName: req.session.folderName});  
+      res.render('index', { appHeading : appHeading, appSubHeading : appSubHeading, username: req.session.username, folderName: req.session.folderName});  
     }
   } else {
     //force login as req.session.username is not set
@@ -127,8 +128,8 @@ app.post('/', requiresAuth(), async (req, res) => {
       //logger.info ('retention: ' + req.body.retention);
       const currentDate = new Date();
       currentDate.setDate(currentDate.getDate() + parseInt(req.body.retention));
-      var composedMessage = await composeMessage(req.session.username, req.body.message, req.session.folderName, dateFormat(currentDate, "dd/mm/yyyy"), req.body.password); 
-      logger.info ('about to send with user: ' + req.session.username + ' retention: ' + req.body.retention)
+      var composedMessage = await composeMessage(req.session.name, req.body.message, req.session.folderName, dateFormat(currentDate, "dd/mm/yyyy"), req.body.password); 
+      logger.info ('about to send with user: ' + req.session.name + ' retention: ' + req.body.retention)
 
       try {
         updateSharedFolder(req.session.folderName, req.session.shareId, req.body.retention, req.body.password);
@@ -137,7 +138,7 @@ app.post('/', requiresAuth(), async (req, res) => {
 
         const sendAllEmails = async () => {
           for (let emailIndex = 0; emailIndex <= emails.length-1; emailIndex++) {
-            await sendEmail(senderEmail, emails[emailIndex], '[EEA TRANSFER] user "' + req.session.username + '" wants to send you some files via a shared folder', composedMessage);
+            await sendEmail(senderEmail, emails[emailIndex], '[EEA TRANSFER] user "' + req.session.name + '" wants to send you some files via a shared folder', composedMessage);
           }
         };
 
